@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction History</title>
+  <style>
+    :root {
+      --primary-color: #1e88e5;
+      --primary-dark: #1565c0;
+      --success-color: #00b897;
+      --danger-color: #ff5252;
+      --light-gray: #f8f9fa;
+      --medium-gray: #e9ecef;
+      --dark-gray: #343a40;
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --border-color: #dee2e6;
+      --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+      --shadow-md: 0 .5rem 1rem rgba(0,0,0,.15);
+      --radius: 0.5rem;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--light-gray);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+    }
+    
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      border-radius: var(--radius);
+      transition: all 0.15s ease-in-out;
+      text-decoration: none;
+    }
+    
+    .btn-light {
+      color: var(--text-primary);
+      background-color: white;
+      border: 1px solid var(--border-color);
+    }
+    
+    .btn-light:hover {
+      background-color: var(--medium-gray);
+    }
+    
+    .btn-primary {
+      color: white;
+      background-color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .card-body {
+      padding: 1.25rem;
+    }
+    
+    .filter-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    
+    .filter-select, .filter-date {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      background-color: white;
+    }
+    
+    .filter-select:focus, .filter-date:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25);
+    }
+    
+    .summary-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .stat-value.positive {
+      color: var(--success-color);
+    }
+    
+    .stat-value.negative {
+      color: var(--danger-color);
+    }
+    
+    .transaction-list {
+      margin-top: 1rem;
+    }
+    
+    .transaction-item {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.15s ease-in-out;
+    }
+    
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+    
+    .transaction-item:hover {
+      background-color: var(--light-gray);
+    }
+    
+    .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    
+    .transaction-stock {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .transaction-company {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .transaction-type {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 1rem;
+      text-transform: uppercase;
+    }
+    
+    .transaction-type.buy {
+      background-color: rgba(0, 184, 151, 0.1);
+      color: var(--success-color);
+    }
+    
+    .transaction-type.sell {
+      background-color: rgba(255, 82, 82, 0.1);
+      color: var(--danger-color);
+    }
+    
+    .transaction-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+    }
+    
+    .transaction-detail {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    .detail-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .transaction-balance {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+    }
+    
+    .balance-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-right: 0.5rem;
+    }
+    
+    .balance-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .empty-message {
+      font-size: 1.125rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    footer {
+      background-color: var(--dark-gray);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .footer-content {
+      text-align: center;
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+    
+    @media (max-width: 768px) {
+      .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter-controls {
+        width: 100%;
+      }
+      
+      .filter-select, .filter-date {
+        flex: 1;
+      }
+      
+      .summary-stats {
+        justify-content: space-between;
+        width: 100%;
+      }
+      
+      .transaction-header {
+        flex-direction: column;
+      }
+      
+      .transaction-type {
+        margin-top: 0.5rem;
+      }
+      
+      .transaction-details {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="header-title">Transaction History</h1>
+      <div class="header-actions">
+        <a href="/profile" class="btn btn-light">Profile</a>
+        <a href="/stock" class="btn btn-light">Trade Stocks</a>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <section class="card">
+      <div class="card-body">
+        <div class="filter-section">
+          <div class="filter-controls">
+            <select class="filter-select" id="filterType">
+              <option value="all">All Transactions</option>
+              <option value="buy">Buy Orders</option>
+              <option value="sell">Sell Orders</option>
+            </select>
+            <input type="date" class="filter-date" id="filterDate">
+            <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+          </div>
+          
+          <div class="summary-stats">
+            <div class="stat-item">
+              <span class="stat-label">Total Transactions</span>
+              <span class="stat-value" id="totalTransactions"><%= transactions.length %></span>
+            </div>
+            
+            <% 
+              let totalAmount = 0;
+              let totalBuyAmount = 0;
+              let totalSellAmount = 0;
+              
+              transactions.forEach(transaction => {
+                const amount = transaction.shares * transaction.pricePerShare;
+                if (transaction.type === 'buy') {
+                  totalBuyAmount += amount;
+                } else {
+                  totalSellAmount += amount;
+                }
+              });
+              
+              totalAmount = totalSellAmount - totalBuyAmount;
+            %>
+            
+            <div class="stat-item">
+              <span class="stat-label">Total Invested</span>
+              <span class="stat-value">₹<%= totalBuyAmount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">Total Sold</span>
+              <span class="stat-value">₹<%= totalSellAmount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label">Net P&L</span>
+              <span class="stat-value <%= totalAmount >= 0 ? 'positive' : 'negative' %>">
+                <%= totalAmount >= 0 ? '+' : '' %>₹<%= totalAmount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="card">
+      <div class="card-body">
+        <div class="transaction-list" id="transactionList">
+          <% if (transactions && transactions.length > 0) { %>
+            <% let finalPoints = user.virtualPoints; %>
+            <% 
+              // Reverse the array to show newest transactions first
+              const sortedTransactions = [...transactions].reverse();
+            %>
+            <% sortedTransactions.forEach(transaction => { %>
+              <div class="transaction-item" data-type="<%= transaction.type %>" data-date="<%= new Date(transaction.date).toISOString().split('T')[0] %>">
+                <div class="transaction-header">
+                  <div>
+                    <h3 class="transaction-stock"><%= transaction.stockSymbol %></h3>
+                    <p class="transaction-company"><%= transaction.companyName %></p>
+                  </div>
+                  <span class="transaction-type <%= transaction.type %>"><%= transaction.type %></span>
+                </div>
+                
+                <div class="transaction-details">
+                  <div class="transaction-detail">
+                    <div class="detail-label">Date & Time</div>
+                    <div class="detail-value"><%= new Date(transaction.date).toLocaleString('en-IN', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) %></div>
+                  </div>
+                  
+                  <div class="transaction-detail">
+                    <div class="detail-label">Price Per Share</div>
+                    <div class="detail-value">₹<%= transaction.pricePerShare.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+                  </div>
+                  
+                  <div class="transaction-detail">
+                    <div class="detail-label">Quantity</div>
+                    <div class="detail-value"><%= transaction.shares %> shares</div>
+                  </div>
+                  
+                  <div class="transaction-detail">
+                    <div class="detail-label">Total Amount</div>
+                    <div class="detail-value">₹<%= (transaction.shares * transaction.pricePerShare).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+                  </div>
+                </div>
+                
+                <div class="transaction-balance">
+                  <span class="balance-label">Balance After Transaction:</span>
+                  <span class="balance-value">₹<%= transaction.balanceAfterTransaction ? transaction.balanceAfterTransaction.toLocaleString('en-IN', {maximumFractionDigits: 2}) : 'N/A' %></span>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-icon">📊</div>
+              <h3 class="empty-message">No transactions found</h3>
+              <a href="/stock" class="btn btn-primary">Start Trading</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; <%= new Date().getFullYear() %> Stock Trading Hub. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const filterTypeEl = document.getElementById('filterType');
+      const filterDateEl = document.getElementById('filterDate');
+      const applyFiltersBtn = document.getElementById('applyFilters');
+      const transactionItems = document.querySelectorAll('.transaction-item');
+      const totalTransactionsEl = document.getElementById('totalTransactions');
+      
+      // Apply filters function
+      function applyFilters() {
+        const filterType = filterTypeEl.value;
+        const filterDate = filterDateEl.value;
+        
+        let visibleCount = 0;
+        let totalAmount = 0;
+        
+        transactionItems.forEach(item => {
+          const itemType = item.getAttribute('data-type');
+          const itemDate = item.getAttribute('data-date');
+          
+          let showItem = true;
+          
+          if (filterType !== 'all' && filterType !== itemType) {
+            showItem = false;
+          }
+          
+          if (filterDate && filterDate !== itemDate) {
+            showItem = false;
+          }
+          
+          if (showItem) {
+            item.style.display = 'block';
+            visibleCount++;
+            
+            // Calculate amount for visible transactions
+            const amountText = item.querySelector('.transaction-detail:nth-child(4) .detail-value').textContent;
+            const amount = parseFloat(amountText.replace('₹', '').replace(/,/g, ''));
+            
+            if (!isNaN(amount)) {
+              if (itemType === 'sell') {
+                totalAmount += amount;
+              } else {
+                totalAmount -= amount;
+              }
+            }
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        // Update counters
+        totalTransactionsEl.textContent = visibleCount;
+      }
+      
+      // Event listeners
+      applyFiltersBtn.addEventListener('click', applyFilters);
+      
+      // Initialize with all transactions visible
+      applyFilters();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Portfolio</title>
+    <link rel="stylesheet" href="/css/transactionHistory.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #ffffff;
+            color: #1e3a8a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stock-info h3 {
+            color: #3b82f6;
+            font-size: 14px;
+            margin: 0 0 4px;
+        }
+
+        .stock-info h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 4px;
+        }
+
+        .stock-info p {
+            color: #60a5fa;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .badge {
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+
+        .badge-buy {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .badge-sell {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .price {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 0 4px;
+            color: #1e3a8a;
+        }
+
+        .avg-price {
+            color: #60a5fa;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .change {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .change-positive {
+            color: #10b981;
+        }
+
+        .change-negative {
+            color: #ef4444;
+        }
+
+        .change-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        .sell-button {
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sell-button:hover {
+            background-color: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Portfolio of <%= user.username %></h1>
+    <p>Virtual Points: <%= user.virtualPoints %></p>
+    
+    <h2>Stocks</h2>
+    <div class="grid">
+        <% user.portfolio.forEach(stock => { %>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-header">
+                        <div class="stock-info">
+                            <h2><%= stock.companyName %></h2>
+                            <p><%= stock.stockSymbol %></p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div>
+                            <p class="price"><%= stock.shares %> shares</p>
+                            <p class="avg-price">Avg ₹<%= stock.avgPurchasePrice.toLocaleString('en-IN') %></p>
+                        </div>
+                        <!-- <div>
+                            <a href="/transaction/new?userId=<%= user._id %>&stockSymbol=<%= stock.stockSymbol %>&companyName=<%= stock.companyName %>&type=sell" class="sell-button">Sell</a>
+                        </div> -->
+                        <div 
+                        onClick="window.location.href='/transaction/new?userId=<%= user._id %>&stockSymbol=<%= stock.stockSymbol %>&companyName=<%= stock.companyName %>&type=sell'" 
+                        class="sell-button">
+                        Sell
+                    </div>
+                    
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+    <br> <br>  
+    <div class="grid" id="stockGrid">
+        <!-- Dynamic stock cards will be inserted here -->
+    </div>
+
+    <script>
+        // Sample stock data (replace with API fetch if needed)
+        const stockData = [
+            {
+                time: getCurrentTime(),
+                name: "Vishal Mega Mart",
+                symbol: "VMM",
+                type: "SELL",
+                price: 190.00,
+                avgPrice: 109.57,
+                change: -0.68
+            },
+            {
+                time: getCurrentTime(),
+                name: "Reliance Industries",
+                symbol: "RELI",
+                type: "BUY",
+                price: 2700.45,
+                avgPrice: 2650.30,
+                change: 1.25
+            },
+            {
+                time: getCurrentTime(),
+                name: "Tata Steel",
+                symbol: "TATA",
+                type: "SELL",
+                price: 125.60,
+                avgPrice: 130.00,
+                change: -3.40
+            }
+        ];
+        
+        // Function to get the current time in HH:MM AM/PM format
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12; // Convert 24h format to 12h
+            minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero
+            return `${hours}:${minutes} ${ampm}`;
+        }
+        
+        // Function to generate stock cards dynamically
+        function generateStockCards() {
+            const grid = document.getElementById("stockGrid");
+            grid.innerHTML = ""; // Clear existing content
+        
+            stockData.forEach(stock => {
+                
+                const card = document.createElement("div");
+                card.classList.add("card");
+        
+                const badgeClass = stock.type === "BUY" ? "badge-buy" : "badge-sell";
+                const changeClass = stock.change >= 0 ? "change-positive" : "change-negative";
+                const changeIcon = stock.change >= 0
+                    ? `<svg class="change-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>`
+                    : `<svg class="change-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>`;
+        
+                card.innerHTML = `
+                    <div class="card-content">
+                        <div class="card-header">
+                            <div class="stock-info">
+                                <h3>${stock.time}</h3>
+                                <h2>${stock.name}</h2>
+                                <p>${stock.symbol}</p>
+                            </div>
+                            <span class="badge ${badgeClass}">${stock.type}</span>
+                        </div>
+                        <div class="card-footer">
+                            <div>
+                                <p class="price">₹${stock.price.toFixed(2)}</p>
+                                <p class="avg-price">Avg ₹${stock.avgPrice.toFixed(2)}</p>
+                            </div>
+                            <div class="change ${changeClass}">
+                                ${changeIcon}
+                                <span>${stock.change.toFixed(2)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        
+                grid.appendChild(card);
+            });
+        }
+        
+        // Function to add a new stock transaction dynamically
+        function addTransaction(name, symbol, type, price, avgPrice) {
+            const newStock = {
+                time: getCurrentTime(), // Get the current time
+                name: name,
+                symbol: symbol,
+                type: type,
+                price: price,
+                avgPrice: avgPrice,
+                change: ((price - avgPrice) / avgPrice) * 100 // Calculate percentage change
+            };
+        
+            stockData.unshift(newStock); // Add new transaction at the top
+            generateStockCards(); // Refresh the UI
+        }
+        
+        // Simulate real-time stock price updates every 5 seconds
+        setInterval(() => {
+            stockData.forEach(stock => {
+                stock.price += (Math.random() - 0.5) * 10; // Random price change
+                stock.change = ((stock.price - stock.avgPrice) / stock.avgPrice) * 100;
+            });
+            generateStockCards();
+        }, 5000);
+        
+        // Generate stock cards on page load
+        generateStockCards();
+        
+    </script>
+</body>
+</html>

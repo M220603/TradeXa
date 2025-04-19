@@ -1,0 +1,54 @@
+.transaction-box, .transaction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    gap: 10px; /* Add gap between flex items */
+}
+
+.transaction-header {
+    font-weight: bold;
+    background-color: #e0e0e0;
+}
+
+.transaction-details {
+    flex: 1;
+}
+
+.transaction-profit {
+    color: green;
+}
+
+.transaction-loss {
+    color: red;
+}
+
+.transaction-price {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.transaction-type-header, .transaction-type {
+    flex: 1;
+    text-align: center;
+    margin: 2px;
+}
+
+.transaction-profit-loss-header {
+    flex: 1;
+    text-align: center;
+    margin: 2px;
+}
+
+.transaction-final-points {
+    flex: 1;
+    text-align: right;
+    margin: 2px;
+}

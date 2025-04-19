@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy/Sell Stock</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem; /* 14px */
+            color: #4a5568; /* Gray-700 */
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0; /* Gray-200 */
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #2d3748; /* Gray-800 */
+            background-color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4299e1; /* Blue-400 */
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2); /* Blue-200 with opacity */
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4299e1; /* Blue-600 */
+            color: white;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #3182ce; /* Blue-700 */
+        }
+
+        .btn:active {
+            background-color: #2b6cb0; /* Blue-800 */
+        }
+
+        /* Dark Mode */
+        .dark .form-group label {
+            color: #cbd5e0; /* Gray-300 */
+        }
+
+        .dark .form-group input,
+        .dark .form-group select {
+            background-color: #2d3748; /* Gray-800 */
+            border-color: #4a5568; /* Gray-700 */
+            color: #e2e8f0; /* Gray-200 */
+        }
+
+        .dark .form-group input:focus,
+        .dark .form-group select:focus {
+            border-color: #63b3ed; /* Blue-400 */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2); /* Blue-200 with opacity */
+        }
+
+        .dark .btn {
+            background-color: #4299e1; /* Blue-600 */
+        }
+
+        .dark .btn:hover {
+            background-color: #3182ce; /* Blue-700 */
+        }
+
+        .dark .btn:active {
+            background-color: #2b6cb0; /* Blue-800 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans dark:bg-gray-900">
+    <div class="container mx-auto p-6 max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">Buy/Sell Stock</h1>
+            <p class="text-gray-600 dark:text-gray-400">Manage your stock transactions with ease.</p>
+        </div>
+
+        <!-- Transaction Form -->
+        <form action="/transaction" method="POST" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <!-- Hidden field for user ID -->
+            <input type="hidden" name="userId" value="<%= user._id %>">
+
+            <!-- Stock Symbol -->
+            <div class="form-group">
+                <label for="stockSymbol">Stock Symbol</label>
+                <input 
+                    type="text" 
+                    id="stockSymbol" 
+                    name="stockSymbol" 
+                    value="<%= stockSymbol %>" 
+                    placeholder="e.g., AAPL, TSLA" 
+                    required>
+            </div>
+
+            <!-- Company Name -->
+            <div class="form-group">
+                <label for="companyName">Company Name</label>
+                <input 
+                    type="text" 
+                    id="companyName" 
+                    name="companyName" 
+                    value="<%= companyName %>" 
+                    placeholder="e.g., Apple Inc., Tesla Inc." 
+                    required>
+            </div>
+
+            <!-- Transaction Type (Buy/Sell) -->
+            <div class="form-group">
+                <label for="transactionType">Transaction Type</label>
+                <select id="transactionType" name="type" required>
+                    <option value="buy" <%= type === 'buy' ? 'selected' : '' %>>Buy</option>
+                    <option value="sell" <%= type === 'sell' ? 'selected' : '' %>>Sell</option>
+                </select>
+            </div>
+
+            <!-- Number of Shares -->
+            <div class="form-group">
+                <label for="shares">Number of Shares</label>
+                <input 
+                    type="number" 
+                    id="shares" 
+                    name="shares" 
+                    min="1" 
+                    placeholder="Enter quantity" 
+                    required>
+            </div>
+
+            <!-- Price Per Share -->
+            <div class="form-group">
+                <label for="pricePerShare">Price Per Share</label>
+                <input 
+                    type="number" 
+                    id="pricePerShare" 
+                    name="pricePerShare" 
+                    step="0.01" 
+                    placeholder="Enter price per share" 
+                    required>
+            </div>
+
+            <!-- Total Amount (auto-calculated) -->
+            <div class="form-group">
+                <label for="totalAmount">Total Amount</label>
+                <input 
+                    type="text" 
+                    id="totalAmount" 
+                    name="totalAmount" 
+                    placeholder="Auto-calculated amount" 
+                    readonly>
+            </div>
+
+            <!-- Virtual Points -->
+            <p class="text-gray-700 dark:text-gray-300 mb-4">Virtual Points: <span class="font-semibold"><%= user.virtualPoints %></span></p>
+
+            <!-- Confirm Button -->
+            <button type="submit" class="btn">Confirm Transaction</button>
+        </form>
+    </div>
+
+    <script>
+        // Auto-calculate total amount
+        const sharesInput = document.getElementById('shares');
+        const priceInput = document.getElementById('pricePerShare');
+        const totalAmountInput = document.getElementById('totalAmount');
+
+        function calculateTotal() {
+            const shares = parseFloat(sharesInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            totalAmountInput.value = (shares * price).toFixed(2);
+        }
+
+        sharesInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('input', calculateTotal);
+    </script>
+</body>
+</html>

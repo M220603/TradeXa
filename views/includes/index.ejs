@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradexa</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        @keyframes ticker {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .ticker-wrap {
+            overflow: hidden;
+            position: relative;
+            background: #eeeaea;
+        }
+
+        .ticker {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Enhanced Dark Mode Styles */
+        .dark {
+            background-color: #121212 !important;
+            color: #e0e0e0 !important;
+        }
+
+        .dark .bg-white {
+            background-color: #212121 !important;
+        }
+
+        .dark .text-gray-600 {
+            color: #9e9e9e !important;
+        }
+
+        .dark .text-gray-800 {
+            color: #f5f5f5 !important;
+        }
+
+        .dark .bg-gray-100 {
+            background-color: #303030 !important;
+        }
+
+        /* Stock Ticker Styles */
+.stock-ticker {
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+.stock-ticker-inner {
+    display: flex;
+    white-space: nowrap;
+    animation: stock-ticker-animation 30s linear infinite;
+}
+
+.stock-item {
+    padding: 0 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+@keyframes stock-ticker-animation {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+          /* Dark Mode Adjustments */
+          .dark .stock-ticker {
+              background: linear-gradient(90deg, #1e3a8a, #1e40af);
+          }
+
+        .dark .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .dark .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #6b7280;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .dark .btn-secondary {
+            color: #9ca3af;
+        }
+
+        .btn-secondary:hover {
+            color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .dark .card {
+            background-color: #212121;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        /* Ticker Styles */
+        .stock-ticker {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .stock-ticker-inner {
+            display: flex;
+            animation: stock-ticker-animation 20s linear infinite;
+        }
+
+        .stock-item {
+            padding: 0 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        @keyframes stock-ticker-animation {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Feature Section Styles */
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .dark .feature-item {
+            background-color: #212121;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Hero Section Styles */
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-radius: 0.75rem;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #374151;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        /* Mobile Menu Styles */
+        #mobileMenu a {
+            display: block;
+            padding: 0.75rem;
+            color: #6b7280;
+            transition: color 0.3s;
+        }
+
+        .dark #mobileMenu a {
+            color: #9ca3af;
+        }
+
+        #mobileMenu a:hover {
+            color: #3b82f6;
+        }
+
+        /* Dark Mode adjustments for specific elements */
+        .dark .bg-blue-600 {
+            background-color: #1e3a8a !important;
+        }
+
+        .dark .ticker-wrap {
+            background: #374151;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .lg\:grid-cols-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-inter transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-colors duration-300">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="/"
+                class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors duration-300">Tradexa</a>
+            <!-- Mobile Menu Button -->
+            <button id="menuToggle"
+                class="md:hidden text-gray-600 hover:text-blue-600 transition-colors duration-300 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <!-- Menu Items -->
+            <div id="navMenu" class="hidden md:flex md:items-center md:space-x-4">
+                <a href="/stock" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Stock</a>
+                <!-- <a href="/transaction" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Transaction</a> -->
+                <a href="/transactionHistory" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Transaction</a>
+                <a href="/chat" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Chart</a>
+                <a href="/news" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">News</a>
+                <a href="/fundamentals"
+                    class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Fundamentals</a>
+                <a href="/education" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Education</a>
+                <!-- Dynamic Login/Logout -->
+                <% if (user) { %>
+                    <a href="/profile" class="mt-2 md:mt-0">
+                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">Profile</button>
+                    </a>
+                    <form action="/logout" method="POST" class="mt-2 md:mt-0">
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login" class="mt-2 md:mt-0">
+                        <button
+                            class="bg-transparent text-gray-600 hover:text-blue-600 px-4 py-2 rounded-lg transition-colors duration-300">Login</button>
+                    </a>
+                    <a href="/register" class="mt-2 md:mt-0">
+                        <button
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-300">Register</button>
+                    </a>
+                <% } %>
+                <button id="darkModeToggle"
+                    class="mt-2 md:mt-0 text-gray-600 hover:text-blue-600 transition-colors duration-300 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" id="darkModeIcon" class="h-6 w-6" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <!-- Light Mode Icon -->
+                        <path id="sunIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 2v2m0 16v2m-7-7H3m18 0h-2M5.64 5.64l1.42 1.42M16.95 16.95l1.42 1.42M5.64 18.36l1.42-1.42M16.95 7.05l1.42-1.42M12 6a6 6 0 000 12a6 6 0 000-12z" />
+                        <!-- Dark Mode Icon (hidden by default) -->
+                        <path id="moonIcon" class="hidden" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="md:hidden hidden px-4 pt-2 pb-4">
+            <a href="/stock" class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Stock</a>
+            <!-- <a href="/transaction" class="text-gray-600 hover:text-blue-600 transition-colors duration-300">Transaction</a> -->
+            <a href="/transactionHistory" class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Transaction</a>
+            <a href="/chat" class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Chart</a>
+            <a href="/news" class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">News</a>
+            <a href="/fundamentals"
+                class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Fundamentals</a>
+            <a href="/education"
+                class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Education</a>
+            <% if (user) { %>
+                <a href="/profile" class="block py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Profile</a>
+                <form action="/logout" method="POST" class="block">
+                    <button type="submit" class="w-full text-left py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300">Logout</button>
+                </form>
+            <% } else { %>
+                <a href="/login">
+                    <button
+                        class="w-full text-left bg-transparent text-gray-600 hover:text-blue-600 py-2 rounded-lg transition-colors duration-300">Login</button>
+                </a>
+                <a href="/register">
+                    <button
+                        class="w-full text-left bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors duration-300 mt-2">Register</button>
+                </a>
+            <% } %>
+        </div>
+    </header>
+
+<!-- Stock Ticker -->
+<div class="stock-ticker bg-gradient-to-r from-blue-600 to-blue-500 py-3 shadow-lg">
+  <div class="stock-ticker-inner flex space-x-8">
+      <div class="stock-item text-white font-semibold text-lg">RELIANCE: ₹2500.50 <span class="text-green-400">▲</span></div>
+      <div class="stock-item text-white font-semibold text-lg">TCS: ₹3650.80 <span class="text-red-400">▼</span></div>
+      <div class="stock-item text-white font-semibold text-lg">INFY: ₹1575.40 <span class="text-green-400">▲</span></div>
+      <div class="stock-item text-white font-semibold text-lg">HDFCBANK: ₹1500.20 <span class="text-red-400">▼</span></div>
+      <div class="stock-item text-white font-semibold text-lg">ICICIBANK: ₹950.30 <span class="text-green-400">▲</span></div>
+      <div class="stock-item text-white font-semibold text-lg">SBIN: ₹615.10 <span class="text-green-400">▲</span></div>
+      <div class="stock-item text-white font-semibold text-lg">HINDUNILVR: ₹2650.75 <span class="text-red-400">▼</span></div>
+      <div class="stock-item text-white font-semibold text-lg">TATAMOTORS: ₹520.90 <span class="text-green-400">▲</span></div>
+      <div class="stock-item text-white font-semibold text-lg">BAJFINANCE: ₹7200.10 <span class="text-red-400">▼</span></div>
+      <div class="stock-item text-white font-semibold text-lg">LT: ₹2800.40 <span class="text-green-400">▲</span></div>
+  </div>
+</div>
+
+    <!-- Main Section -->
+    <main class="container mx-auto px-4 py-8">
+        <section class="hero-section">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4 transition-colors duration-300">Virtual Trading, Real Learning</h1>
+            <p class="text-xl text-gray-600 mb-8 transition-colors duration-300">Experience the thrill of trading without the risk. Start your journey with Tradexa today!</p>
+            <% if (!user) { %>
+                <a href="/register" class="btn-primary">Get Started</a>
+            <% } else { %>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center transition-all duration-300 hover:shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Your Virtual Balance</h3>
+                    <!-- <div class="text-3xl font-bold text-green-600">₹  <%= user.virtualPoints.toFixed(2) %></div> -->
+
+                    <div class="text-3xl font-bold text-green-600">
+                        ₹ <%= (user && typeof user.virtualPoints === "number") ? user.virtualPoints.toFixed(2) : "0.00" %>
+                    </div>
+                    
+                    
+                    <p class="text-sm text-gray-500 mt-2">Start trading with your virtual points!</p>
+                </div>
+            <% } %>
+        </section>
+
+        <!-- Features Section -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div class="feature-item card">
+                <div class="feature-icon">📚</div>
+                <h3 class="text-xl font-semibold mb-2">Bridging the Knowledge Gap</h3>
+                <p class="text-gray-600 transition-colors duration-300">Learn trading concepts through hands-on experience.</p>
+            </div>
+            <div class="feature-item card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="text-xl font-semibold mb-2">Risk-Free Practice</h3>
+                <p class="text-gray-600 transition-colors duration-300">Trade with virtual currency and zero financial risk.</p>
+            </div>
+            <div class="feature-item card">
+                <div class="feature-icon">📊</div>
+                <h3 class="text-xl font-semibold mb-2">Data-Driven Insights</h3>
+                <p class="text-gray-600 transition-colors duration-300">Access real-time market data and analytical tools.</p>
+            </div>
+            <div class="feature-item card">
+                <div class="feature-icon">🤝</div>
+                <h3 class="text-xl font-semibold mb-2">Community-Driven Engagement</h3>
+                <p class="text-gray-600 transition-colors duration-300">Connect with fellow traders and share insights.</p>
+            </div>
+        </section>
+
+        <!-- Start Trading Section -->
+        <% if (!user) { %>
+            <section class="bg-blue-600 text-white p-8 rounded-lg mb-12 text-center transition-all duration-300 hover:shadow-xl">
+                <h2 class="text-3xl font-bold mb-4">Start Trading Now</h2>
+                <p class="mb-6">Sign up today and receive 10,000 virtual points to kickstart your trading journey!</p>
+                <a href="/register">
+                    <button class="bg-transparent text-white border-2 border-white px-6 py-3 rounded-lg transition-all duration-300 hover:bg-white hover:text-blue-600">Create Your Account</button>
+                </a>
+            </section>
+        <% } %>
+
+        <!-- Why Choose Tradexa Section -->
+        <section class="text-center">
+            <h2 class="text-3xl font-bold mb-4 transition-colors duration-300">Why Choose Tradexa?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <div class="transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-xl font-semibold mb-2">Real-Time Data</h3>
+                    <p class="text-gray-600 transition-colors duration-300">Access live market data from 9 AM to 3 PM, mirroring actual trading hours.</p>
+                </div>
+                <div class="transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-xl font-semibold mb-2">Comprehensive Learning</h3>
+                    <p class="text-gray-600 transition-colors duration-300">Explore our educational content, news feeds, and fundamental stock data.</p>
+                </div>
+                <div class="transition-all duration-300 hover:transform hover:scale-105">
+                    <h3 class="text-xl font-semibold mb-2">AI-Powered Support</h3>
+                    <p class="text-gray-600 transition-colors duration-300">Get personalized insights and answers from our AI chatbot.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+ <%- include('../partials/footer') %>
+
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+
+        darkModeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            html.classList.add('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        } else {
+            html.classList.remove('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIcon = document.getElementById('menuIcon');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            // Toggle menu icon between hamburger and close icon
+            menuIcon.setAttribute('d', mobileMenu.classList.contains('hidden') ? 'M4 6h16M4 12h16M4 18h16' : 'M6 18L18 6M6 6l12 12');
+        });
+    </script>
+
+<!-- Chatbot Container -->
+<div id="webchat"></div>
+
+<!-- Chatbot Initialization Script -->
+<script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
+<script>
+    window.botpress.init({
+        "botId": "49ad76e3-edbe-4804-8cbc-9ee8fe0db9dc",
+        "configUrl": "https://files.bpcontent.cloud/2025/03/18/07/20250318071309-H2JWB1TF.json",
+        "clientId": "5bdd95a9-2177-402a-a2cc-690f758db500",
+        "selector": "#webchat",
+        "configuration": {
+            "composerPlaceholder": "Stock Gyaani",
+            "botName": "Stock Gyaani",
+            "botDescription": "Stock Gyaani helps you with trading information.",
+            "color": "#3B82F6",
+            "variant": "solid",
+            "themeMode": "light",
+            "fontFamily": "inter",
+            "radius": 1,
+            "floating": false // Disable floating mode
+        }
+    });
+</script>
+
+
+</body>
+
+</html>

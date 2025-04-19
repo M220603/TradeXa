@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Fundamental Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles */
+        .dashboard-card {
+            background: linear-gradient(145deg, #ffffff, #f9f9f9);
+            color: #333;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .data-box {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .data-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 2rem;
+        }
+
+        .data-box li {
+            flex: 1 0 calc(50% - 1rem);
+            margin: 0;
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+
+        .data-box li strong {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        /* Dark Mode */
+        .dark .dashboard-card {
+            background: linear-gradient(145deg, #2d3748, #1a202c);
+            color: #e2e8f0;
+        }
+
+        .dark .data-box {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+
+        .dark .data-box li {
+            color: #cbd5e0;
+        }
+
+        .dark .data-box li strong {
+            color: #e2e8f0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .data-box ul {
+                flex-direction: column;
+            }
+
+            .data-box li {
+                flex: 1 0 100%;
+            }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .back-button.hidden {
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans dark:bg-gray-900">
+    <!-- Back Button -->
+    <button class="back-button" onclick="window.history.back()">← Back</button>
+
+    <div class="container mx-auto p-6">
+        <!-- Header Section -->
+        <section class="text-center mb-8">
+            <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">Stock Fundamental Analysis Dashboard</h1>
+            <p class="text-gray-600 dark:text-gray-400">Analyze stock fundamentals and trends.</p>
+        </section>
+
+        <!-- Stock Input Form Section -->
+        <section class="dashboard-card">
+            <form id="stockForm" class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="stockSymbol" placeholder="Enter stock symbol (e.g., AAPL)" class="w-full md:w-3/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+                <button type="submit" class="w-full md:w-1/4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Analyze Stock
+                </button>
+            </form>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="dashboard-card">
+            <h3>Charts</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="data-box">
+                    <canvas id="recommendationChart"></canvas>
+                </div>
+                <div class="data-box">
+                    <canvas id="historicalChart"></canvas>
+                </div>
+                <div class="data-box">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fundamental Data Section -->
+        <section class="dashboard-card">
+            <h3>Fundamental Data</h3>
+            <div class="data-box">
+                <ul>
+                    <li><strong>Current Value:</strong> <span id="currentValue"></span></li>
+                    <li><strong>Open:</strong> <span id="stockOpen"></span></li>
+                    <li><strong>Prev. Close:</strong> <span id="stockPreviousClose"></span></li>
+                    <li><strong>Percent Change:</strong> <span id="stockPercentChange"></span></li>
+                    <li><strong>Change:</strong> <span id="stockChange"></span></li>
+                    <li><strong>P/E Ratio:</strong> <span id="peRatio"></span></li>
+                    <li><strong>P/B Ratio:</strong> <span id="pbRatio"></span></li>
+                    <li><strong>P/S Ratio:</strong> <span id="psRatio"></span></li>
+                    <li><strong>Dividend Yield:</strong> <span id="dividendYield"></span></li>
+                    <li><strong>Net Profit Margin:</strong> <span id="netProfitMargin"></span></li>
+                    <li><strong>Operating Margin:</strong> <span id="operatingMargin"></span></li>
+                    <li><strong>ROE:</strong> <span id="roe"></span></li>
+                    <li><strong>ROA:</strong> <span id="roa"></span></li>
+                    <li><strong>Current Ratio:</strong> <span id="currentRatio"></span></li>
+                    <li><strong>Quick Ratio:</strong> <span id="quickRatio"></span></li>
+                    <li><strong>Debt Equity Ratio:</strong> <span id="debtEquityRatio"></span></li>
+                    <li><strong>Revenue Growth:</strong> <span id="revenueGrowth"></span></li>
+                    <li><strong>EPS Growth:</strong> <span id="epsGrowth"></span></li>
+                    <li><strong>Cash Flow Per Share:</strong> <span id="cashFlowPerShare"></span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Technical Data Section -->
+        <section class="dashboard-card">
+            <h3>Technical Data</h3>
+            <div class="data-box">
+                <ul>
+                    <li><strong>Today's Low:</strong> <span id="todayLow"></span></li>
+                    <li><strong>Today's High:</strong> <span id="todayHigh"></span></li>
+                    <li><strong>52W Low:</strong> <span id="52WeekLow"></span></li>
+                    <li><strong>52W High:</strong> <span id="52WeekHigh"></span></li>
+                    <li><strong>Volume:</strong> <span id="10DayAverageTradingVolume"></span></li>
+                    <li><strong>52W Price Return:</strong> <span id="52WeekPriceReturnDaily"></span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Loading and Error Section -->
+        <section>
+            <div id="loadingSpinner" class="hidden flex justify-center items-center mt-8">
+                <div class="loader"></div>
+            </div>
+            <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-8">
+                <strong>Error:</strong> <span id="errorText"></span>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Back Button Visibility on Scroll
+        window.addEventListener('scroll', () => {
+            const backButton = document.querySelector('.back-button');
+            if (window.scrollY > 100) {
+                backButton.classList.add('hidden');
+            } else {
+                backButton.classList.remove('hidden');
+            }
+        });
+
+        // Dark Mode Toggle
+        const darkModeToggle = document.createElement('button');
+        darkModeToggle.textContent = '🌙';
+        darkModeToggle.className = 'fixed top-4 right-4 bg-gray-800 text-white p-2 rounded-full shadow-lg z-1000';
+        darkModeToggle.onclick = () => {
+            document.documentElement.classList.toggle('dark');
+            darkModeToggle.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+        };
+        document.body.appendChild(darkModeToggle);
+
+        // Fetch Stock Data
+        document.getElementById('stockForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const symbol = document.getElementById('stockSymbol').value.toUpperCase();
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/stock/${symbol}`);
+                if (!response.ok) throw new Error('Failed to fetch stock data');
+
+                const stockData = await response.json();
+                const quote = stockData.quote;
+                const recommendations = stockData.recommendations[0];
+                const financial = stockData.financial;
+
+                // Generate dummy historical data if missing
+                const historical = stockData.historical || {
+                    dates: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+                    prices: Array.from({ length: 30 }, () => Math.random() * 100 + 200),
+                    volumes: Array.from({ length: 30 }, () => Math.random() * 1000000)
+                };
+
+                // Update UI
+                updateFundamentalData(quote, financial);
+                updateTechnicalData(quote, financial);
+                updateCharts(recommendations, historical);
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+                document.getElementById('errorText').textContent = error.message;
+                document.getElementById('errorMessage').classList.remove('hidden');
+            } finally {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        });
+
+        function updateFundamentalData(quote, financial) {
+            document.getElementById('currentValue').textContent = quote.c ?? 'N/A';
+            document.getElementById('stockOpen').textContent = quote.o ?? 'N/A';
+            document.getElementById('stockPreviousClose').textContent = quote.pc ?? 'N/A';
+            document.getElementById('stockPercentChange').textContent = quote.dp ? quote.dp.toFixed(2) + '%' : 'N/A';
+            document.getElementById('stockChange').textContent = quote.d ? quote.d + ' Rs' : 'N/A';
+            document.getElementById('peRatio').textContent = financial?.peRatio ?? 'N/A';
+            document.getElementById('pbRatio').textContent = financial?.pbRatio ?? 'N/A';
+            document.getElementById('psRatio').textContent = financial?.psRatio ?? 'N/A';
+            document.getElementById('dividendYield').textContent = financial?.dividendYield ?? 'N/A';
+            document.getElementById('netProfitMargin').textContent = financial?.netProfitMargin ?? 'N/A';
+            document.getElementById('operatingMargin').textContent = financial?.operatingMargin ?? 'N/A';
+            document.getElementById('roe').textContent = financial?.roe ?? 'N/A';
+            document.getElementById('roa').textContent = financial?.roa ?? 'N/A';
+            document.getElementById('currentRatio').textContent = financial?.currentRatio ?? 'N/A';
+            document.getElementById('quickRatio').textContent = financial?.quickRatio ?? 'N/A';
+            document.getElementById('debtEquityRatio').textContent = financial?.debtEquityRatio ?? 'N/A';
+            document.getElementById('revenueGrowth').textContent = financial?.revenueGrowth ?? 'N/A';
+            document.getElementById('epsGrowth').textContent = financial?.epsGrowth ?? 'N/A';
+            document.getElementById('cashFlowPerShare').textContent = financial?.cashFlowPerShare ?? 'N/A';
+        }
+
+        function updateTechnicalData(quote, financial) {
+            document.getElementById('todayLow').textContent = quote.l ?? 'N/A';
+            document.getElementById('todayHigh').textContent = quote.h ?? 'N/A';
+            document.getElementById('52WeekLow').textContent = financial?.weekLow ?? 'N/A';
+            document.getElementById('52WeekHigh').textContent = financial?.weekHigh ?? 'N/A';
+            document.getElementById('10DayAverageTradingVolume').textContent = financial?.volume ?? 'N/A';
+            document.getElementById('52WeekPriceReturnDaily').textContent = financial?.dailyReturn ?? 'N/A';
+        }
+
+        function updateCharts(recommendations, historical) {
+            updateRecommendationChart(recommendations);
+            updateHistoricalChart(historical);
+            updateVolumeChart(historical);
+        }
+
+        function updateRecommendationChart(data) {
+            const ctx = document.getElementById('recommendationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'],
+                    datasets: [{
+                        data: [data.strongBuy, data.buy, data.hold, data.sell, data.strongSell],
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FFEB3B', '#FF9800', '#F44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Recommendation Trends' }
+                    }
+                }
+            });
+        }
+
+        function updateHistoricalChart(data) {
+            const ctx = document.getElementById('historicalChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Price',
+                        data: data.prices,
+                        borderColor: '#2196F3',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Historical Price Trend' }
+                    }
+                }
+            });
+        }
+
+        function updateVolumeChart(data) {
+            const ctx = document.getElementById('volumeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Volume',
+                        data: data.volumes,
+                        backgroundColor: '#4CAF50'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Trading Volume' }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

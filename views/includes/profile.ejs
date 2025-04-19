@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for balance card */
+        .balance-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .balance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Dynamic balance color classes */
+        .balance-high {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+        
+        .balance-medium {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        }
+        
+        .balance-low {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        }
+        
+        /* Responsive table styles */
+        @media (max-width: 768px) {
+            .responsive-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+            }
+            
+            .stock-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .stock-actions button {
+                width: 100%;
+            }
+        }
+        
+        /* Stock price animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .price-change {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    <script>
+        function updateStockPrices() {
+            document.querySelectorAll('.stock-price').forEach(stock => {
+                let basePrice = parseFloat(stock.getAttribute('data-base-price'));
+                let newPrice = (basePrice + (Math.random() * 10 - 5)).toFixed(2);
+                let oldPrice = parseFloat(stock.textContent.replace('₹', '').replace(',', ''));
+                
+                stock.textContent = '₹' + parseFloat(newPrice).toLocaleString('en-IN');
+                
+                // Add color and animation based on price change
+                if (newPrice > oldPrice) {
+                    stock.style.color = '#22c55e'; // Green
+                    stock.classList.add('price-change');
+                } else if (newPrice < oldPrice) {
+                    stock.style.color = '#ef4444'; // Red
+                    stock.classList.add('price-change');
+                }
+                
+                // Remove animation after it completes
+                setTimeout(() => {
+                    stock.classList.remove('price-change');
+                }, 2000);
+            });
+        }
+        
+        // Update prices every 2 seconds
+        setInterval(updateStockPrices, 2000);
+
+        function logout() {
+            // Submit the logout form
+            document.getElementById('logout-form').submit();
+        }
+
+        function goHome() {
+            window.location.href = "/";  // Redirect to home page
+        }
+
+        // Fetch user details dynamically
+        async function fetchUserData() {
+            try {
+                let response = await fetch('/get-user-info');
+                if (!response.ok) throw new Error('Failed to fetch user data');
+                
+                let data = await response.json();
+                console.log('User data:', data); // Log the user data
+
+                document.getElementById('user-name').textContent = data.username || "N/A";
+                document.getElementById('user-email').textContent = data.email || "N/A";
+                document.getElementById('user-phone').textContent = data.phone || "N/A";
+                
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+        
+        // Update balance card style based on amount
+        function updateBalanceCardStyle(balance) {
+            const balanceCard = document.getElementById('balance-card');
+            if (!balanceCard) return;
+            
+            // Remove existing classes
+            balanceCard.classList.remove('balance-high', 'balance-medium', 'balance-low');
+            
+            // Add appropriate class based on balance
+            if (balance >= 50000) {
+                balanceCard.classList.add('balance-high');
+            } else if (balance >= 10000) {
+                balanceCard.classList.add('balance-medium');
+            } else {
+                balanceCard.classList.add('balance-low');
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            fetchUserData();
+            // Get the balance from the page and update card style
+            const balanceValue = parseFloat(document.getElementById('balance-value').textContent.replace(/[₹,]/g, ''));
+            updateBalanceCardStyle(balanceValue);
+        };
+    </script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4 md:p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-0">Profile Dashboard</h2>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="goHome()" class="bg-blue-500 text-white px-3 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
+                    ← Home
+                </button>
+                <a href="/stock" class="bg-green-500 text-white px-3 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+                    Trade Stocks
+                </a>
+                <a href="/transactionHistory" class="bg-purple-500 text-white px-3 py-2 rounded-lg shadow-md hover:bg-purple-700 transition">
+                    Transaction History
+                </a>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-lg shadow-md hover:bg-red-700 transition">
+                    Logout
+                </button>
+                
+                <!-- Hidden logout form -->
+                <form id="logout-form" action="/logout" method="POST" class="hidden"></form>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- User Info -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">User Information</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">Name</p>
+                        <p class="font-semibold" id="user-name"><%= user.username %></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Email</p>
+                        <p class="font-semibold" id="user-email"><%= user.email %></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Phone</p>
+                        <p class="font-semibold" id="user-phone"><%= user.phone %></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Password</p>
+                        <div class="flex items-center">
+                            <p class="font-semibold">••••••</p>
+                            <a href="/reset-password" class="text-blue-500 ml-2 text-sm hover:underline">Update</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <!-- Virtual Balance -->
+            <div id="balance-card" class="balance-card p-6 rounded-lg shadow-lg text-center text-white">
+                <h3 class="text-xl font-bold mb-2">Virtual Balance</h3>
+                <p class="text-4xl font-extrabold mb-2" id="balance-value">₹<%= user.virtualPoints.toLocaleString('en-IN') %></p>
+                
+                <% 
+                // Calculate balance status message
+                let balanceStatus = "";
+                if (user.virtualPoints >= 50000) {
+                    balanceStatus = "Excellent! You're doing great.";
+                } else if (user.virtualPoints >= 20000) {
+                    balanceStatus = "Good standing. Keep growing!";
+                } else if (user.virtualPoints >= 10000) {
+                    balanceStatus = "Stable balance. Ready to invest.";
+                } else if (user.virtualPoints >= 5000) {
+                    balanceStatus = "Consider growing your portfolio.";
+                } else {
+                    balanceStatus = "Low balance. Trade carefully.";
+                }
+                %>
+                
+                <p class="text-sm mt-2"><%= balanceStatus %></p>
+                
+                <div class="mt-4">
+                    <a href="/stock" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition inline-block">
+                        Trade Now
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Portfolio Summary</h3>
+                
+                <% 
+                // Calculate portfolio stats
+                let totalStocks = user.portfolio ? user.portfolio.length : 0;
+                let totalShares = 0;
+                let totalInvestment = 0;
+                
+                if (user.portfolio) {
+                    user.portfolio.forEach(stock => {
+                        totalShares += stock.shares;
+                        totalInvestment += (stock.shares * stock.avgPurchasePrice);
+                    });
+                }
+                %>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500">Stocks Owned</p>
+                        <p class="text-xl font-bold"><%= totalStocks %></p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500">Total Shares</p>
+                        <p class="text-xl font-bold"><%= totalShares %></p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500">Investment</p>
+                        <p class="text-xl font-bold">₹<%= totalInvestment.toLocaleString('en-IN') %></p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm text-gray-500">Cash Available</p>
+                        <p class="text-xl font-bold">₹<%= user.virtualPoints.toLocaleString('en-IN') %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Portfolio -->
+        <div class="bg-white p-6 mt-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Stock Portfolio</h3>
+            
+            <% if (user.portfolio && user.portfolio.length > 0) { %>
+                <div class="responsive-table">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 p-2 text-left">Stock</th>
+                                <th class="border border-gray-300 p-2 text-left">Symbol</th>
+                                <th class="border border-gray-300 p-2 text-left">Date</th>
+                                <th class="border border-gray-300 p-2 text-left">Quantity</th>
+                                <th class="border border-gray-300 p-2 text-left">Avg Purchase Price</th>
+                                <th class="border border-gray-300 p-2 text-left">Current Price</th>
+                                <th class="border border-gray-300 p-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% user.portfolio.forEach(stock => { %>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 p-2"><%= stock.companyName %></td>
+                                    <td class="border border-gray-300 p-2"><%= stock.stockSymbol %></td>
+                                    <td class="border border-gray-300 p-2">
+                                        <%= new Date().toISOString().split('T')[0] %>
+                                    </td>
+                                    <td class="border border-gray-300 p-2"><%= stock.shares %> shares</td>
+                                    <td class="border border-gray-300 p-2">₹<%= stock.avgPurchasePrice.toLocaleString('en-IN') %></td>
+                                    <td class="border border-gray-300 p-2 stock-price" 
+                                        data-base-price="<%= stock.avgPurchasePrice.toFixed(2) %>">
+                                        ₹<%= stock.avgPurchasePrice.toLocaleString('en-IN') %>
+                                    </td>
+                                    <td class="border border-gray-300 p-2 text-center stock-actions">
+                                        <a href="/stock?stockSymbol=<%= stock.stockSymbol %>&type=buy" 
+                                           class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-700 transition inline-block mb-1 md:mb-0">
+                                            Buy
+                                        </a>
+                                        <a href="/stock?stockSymbol=<%= stock.stockSymbol %>&type=sell&shares=<%= stock.shares %>" 
+                                           class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 transition inline-block">
+                                            Sell
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-10 bg-gray-50 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h4 class="text-lg font-semibold text-gray-700 mb-2">No Stocks in Portfolio</h4>
+                    <p class="text-gray-500 mb-4">Start trading to build your portfolio</p>
+                    <a href="/stock" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        Explore Stocks
+                    </a>
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="bg-white p-6 mt-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Recent Transactions</h3>
+                <a href="/transactionHistory" class="text-blue-500 hover:underline text-sm">View All</a>
+            </div>
+            
+            <% if (user.transactionHistory && user.transactionHistory.length > 0) { %>
+                <div class="responsive-table">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 p-2 text-left">Stock</th>
+                                <th class="border border-gray-300 p-2 text-left">Type</th>
+                                <th class="border border-gray-300 p-2 text-left">Date</th>
+                                <th class="border border-gray-300 p-2 text-left">Shares</th>
+                                <th class="border border-gray-300 p-2 text-left">Price</th>
+                                <th class="border border-gray-300 p-2 text-left">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% 
+                            // Get the 5 most recent transactions
+                            const recentTransactions = [...user.transactionHistory]
+                                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                .slice(0, 5);
+                            
+                            recentTransactions.forEach(transaction => { 
+                            %>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="border border-gray-300 p-2"><%= transaction.stockSymbol %></td>
+                                    <td class="border border-gray-300 p-2">
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                            <%= transaction.type === 'buy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                            <%= transaction.type.toUpperCase() %>
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 p-2">
+                                        <%= new Date(transaction.date).toLocaleDateString('en-IN') %>
+                                    </td>
+                                    <td class="border border-gray-300 p-2"><%= transaction.shares %></td>
+                                    <td class="border border-gray-300 p-2">₹<%= transaction.pricePerShare.toLocaleString('en-IN') %></td>
+                                    <td class="border border-gray-300 p-2">₹<%= (transaction.shares * transaction.pricePerShare).toLocaleString('en-IN') %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-8 bg-gray-50 rounded-lg">
+                    <p class="text-gray-500">No transactions yet</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

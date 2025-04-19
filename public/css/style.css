@@ -1,0 +1,23 @@
+/* Example styles for buttons */
+.btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.buy-btn {
+    background-color: #28a745; /* Green for Buy */
+}
+
+.sell-btn {
+    background-color: #dc3545; /* Red for Sell */
+}
+
+.btn:hover {
+    opacity: 0.8;
+}

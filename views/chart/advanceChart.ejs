@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingView Chart</title>
+    <link rel="stylesheet" href="/css/advanceChart.css">
+</head>
+
+<body>
+    <!-- Paste the TradingView widget code here -->
+    <div class="tradingview-widget-container" style="height:100%;width:100%">
+        <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+        <a href="/chart" class="button">Candle Chart</a>
+        <div class="tradingview-widget-copyright">
+
+          <a>
+            <p class="tradingview">Track all markets on TradingView</p>
+            </a>
+        </div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          new TradingView.widget({
+        "autosize": true,
+        "symbol": "NASDAQ:AAPL",
+        "interval": "D",
+        "timezone": "Asia/Kolkata",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "allow_symbol_change": true,
+        "calendar": false,
+        "show_popup_button": true,
+        "popup_width": "1000",
+        "popup_height": "650",
+        "support_host": "https://www.tradingview.com"
+    });
+        </script>
+    </div>
+</body>
+</html>

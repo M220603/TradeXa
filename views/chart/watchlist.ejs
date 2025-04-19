@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Watchlist</title>
+  
+</head>
+<body>
+    <!-- TradingView Widget BEGIN -->
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <div class="tradingview-widget-copyright">
+        <a >
+          <a href="/watchlist" class="button">Stock Watchlist</a>
+        </a>
+      </div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js" async>
+     
+     new TradingView.widget({
+      "colorTheme": "dark",
+      "dateRange": "12M",
+      "exchange": "BSE",
+      "showChart": true,
+      "locale": "en",
+      "largeChartUrl": "",
+      "isTransparent": false,
+      "showSymbolLogo": false,
+      "showFloatingTooltip": false,
+      "width": "400",
+      "height": "550",
+      "plotLineColorGrowing": "rgba(41, 98, 255, 1)",
+      "plotLineColorFalling": "rgba(41, 98, 255, 1)",
+      "gridLineColor": "rgba(42, 46, 57, 0)",
+      "scaleFontColor": "rgba(242, 242, 242, 1)",
+      "belowLineFillColorGrowing": "rgba(255, 0, 0, 0.12)",
+      "belowLineFillColorFalling": "rgba(255, 0, 255, 0.12)",
+      "belowLineFillColorGrowingBottom": "rgba(255, 255, 0, 0)",
+      "belowLineFillColorFallingBottom": "rgba(0, 255, 0, 0)",
+      "symbolActiveColor": "rgba(0, 0, 0, 0.12)"
+      })
+
+      </script>
+    </div>
+  
+</body>
+</html>
